@@ -181,18 +181,42 @@ const drivers = [
 
 ];
 
+ 
 const trips = [
-  ["FA-10482",640],
-  ["FA-10491",715],
-  ["FA-10506",590],
-  ["FA-10521",655]
+  ["Trip-1048201",640],
+  ["Trip-1049102",715],
+  ["Trip-1050603",590],
+  ["Trip-1052104",655]
 ];
+
 
 function money(value) {
   return "$" + value.toLocaleString("en-US", {
     minimumFractionDigits:2,
     maximumFractionDigits:2
   });
+}
+
+function currentPayPeriod() {
+  const today = new Date();
+  const end = new Date(today);
+  const daysUntilTuesday = (2 - today.getDay() + 7) % 7;
+
+  end.setDate(today.getDate() + daysUntilTuesday);
+  end.setHours(0, 0, 0, 0);
+
+  if (daysUntilTuesday === 0 && today >= end) {
+    end.setDate(end.getDate() + 7);
+  }
+
+  const start = new Date(end);
+  start.setDate(end.getDate() - 7);
+
+  const format = date => date.toLocaleDateString("en-US", {
+    month: "short", day: "numeric", year: "numeric"
+  });
+
+  return format(start) + " - " + format(end);
 }
 
 function show(html) {
@@ -257,7 +281,7 @@ function driverDashboard() {
 
     <h1>Welcome, Ubaldo</h1>
 
-    <p>Truck #12 · Weekly Overview</p>
+    <p>Truck #21375 · Weekly Overview</p>
 
     <div class="grid">
       <div class="card">
@@ -289,11 +313,20 @@ function form(title, fields, returnAction) {
   html += `<p>Demo form — information will not be saved.</p>`;
   html += `<div class="card">`;
 
-  fields.forEach(field => {
-    html += `<label>${field[0]}</label>`;
+  
+fields.forEach(field => {
+  html += `<label>${field[0]}</label>`;
+
+  if (title === "Add Trip" && field[0] === "Trip Date") {
+    html += `<input type="date" id="tripDate"
+      onclick="this.showPicker && this.showPicker()"
+      max="${new Date().toLocaleDateString('en-CA')}">`;
+  } else {
     html += `<input type="${field[2]||'text'}"
-             placeholder="${field[1]}">`;
-  });
+      placeholder="${field[1]}">`;
+  }
+});
+
 
   html += btn("SUBMIT","confirmation()");
   html += `</div>`;
@@ -318,10 +351,12 @@ function confirmation() {
 
 function addTrip() {
   form("Add Trip",[
-    ["Trip Number","FA-10542"],
-    ["Trip Date","","date"],
-    ["Truck Number","12"],
-    ["Miles Driven","650","number"],
+    
+["Trip Number",""],
+["Trip Date","","date"],
+["Truck Number",""],
+["Miles Driven","","number"],
+
     ["Extra Pay ($) - Optional","0","number"],
     ["Authorization Photo - Optional","","file"]
   ],"driverDashboard()");
@@ -340,6 +375,14 @@ function myTrips() {
   });
 
   html += "</div>";
+ 
+const totalMiles = trips.reduce((total, t) => total + t[1], 0);
+
+html += `<div class="row">
+  <strong>This Week Total Miles</strong>
+  <b>${totalMiles.toLocaleString("en-US")} miles</b>
+</div>`;
+
   html += btn("Add Trip","addTrip()");
 
   show(html);
@@ -496,9 +539,16 @@ function payroll() {
   html += `
     <h1>Weekly Payroll</h1>
 
+<p><strong>Current Week</strong></p>
+
+<p>${currentPayPeriod()}</p>
+
+
     <div class="hero">
       <small>ESTIMATED FLEET PAYROLL</small>
-      <div class="big">$6,861.00</div>
+  
+<div class="big">${money(drivers.reduce((total, d) => total + d.miles * d.rate, 0))}</div>
+
     </div>
 
     <div class="card">
@@ -517,9 +567,42 @@ function payroll() {
   });
 
   html += "</div>";
+  
+html += btn("📅 View Previous Weeks", "previousWeeks()", true);
+
   html += "<p>Sample payroll information only.</p>";
 
   show(html);
+}
+
+function previousWeeks() {
+  show(`
+    ${back("payroll()")}
+
+    <h1>Payroll History</h1>
+    <p>Select a week to view payroll details.</p>
+
+    <div class="card">
+      <div class="row">
+        <span>Oct 27 - Nov 3, 2026</span>
+        <b>$6,420.00</b>
+      </div>
+      <div class="row">
+        <span>Oct 20 - Oct 27, 2026</span>
+        <b>$5,980.00</b>
+      </div>
+      <div class="row">
+        <span>Oct 13 - Oct 20, 2026</span>
+        <b>$6,710.00</b>
+      </div>
+      <div class="row">
+        <span>Oct 6 - Oct 13, 2026</span>
+        <b>$6,150.00</b>
+      </div>
+    </div>
+
+    <p>Sample payroll history for demonstration only.</p>
+  `);
 }
 
 function tripReports() {
