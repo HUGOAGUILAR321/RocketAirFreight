@@ -173,10 +173,12 @@ ROCKET AIR FREIGHT · DEMO VERSION
 let role = "driver";
 
 const drivers = [
-  {name:" Ubaldo", truck:"12", miles:2600, rate:0.62},
-  {name:"Yoyito", truck:"07", miles:3100, rate:0.65},
-  {name:"Shinola", truck:"20", miles:2450, rate:0.60},
-  {name:"Fernando", truck:"04", miles:2800, rate:0.63}
+ 
+{name:"Ubaldo", truck:"21375", miles:2600, rate:0.40},
+{name:"Yoyito", truck:"20841", miles:3100, rate:0.70},
+{name:"Shinola", truck:"21796", miles:2450, rate:0.40},
+{name:"Fernando", truck:"20563", miles:2800, rate:0.70},
+
 ];
 
 const trips = [
@@ -419,8 +421,7 @@ function adminDashboard() {
     ${btn("👥 Manage Drivers","manageDrivers()")}
     ${btn("🚛 Manage Trucks","manageTrucks()",true)}
     ${btn("💵 Weekly Payroll","payroll()",true)}
-    ${btn("📋 Trip Reports","tripReports()",true)}
-    ${btn("🧾 Expense Requests","expenseRequests()",true)}
+    
     ${btn("🔧 Repair Reports","repairReports()",true)}
     ${btn("Log Out","home()",true)}
   `);
@@ -450,9 +451,11 @@ function manageDrivers() {
 function addDriver() {
   form("Add Driver",[
     ["Full Name","Driver name"],
-    ["Assigned Truck","12"],
-    ["Pay Rate Per Mile","0.62","number"],
-    ["Driver PIN","1234"]
+    
+["Assigned Truck","Enter truck number"],
+["Pay Rate Per Mile","Enter pay rate","number"],
+["Driver PIN","Last 4 digits of SSN"]
+
   ],"manageDrivers()");
 }
 
@@ -563,15 +566,45 @@ function repairReports() {
     <h1>Repair Reports</h1>
 
     <div class="card">
-      <div class="row">
-        <span>Truck 20 · Check Engine Light</span>
-        <b>Open</b>
+      
+<div class="row">
+  <span>Truck 21796 · Check Engine Light</span>
+  <b>Open</b>
+</div>
+
+<div class="row">
+  <span>Truck 20841 · Air Line Inspection</span>
+  <b>Review</b>
+</div>
+
+<div class="row">
+  <span>Truck 21375 · Engine Blown</span>
+  <b>Urgent</b>
+</div>
+
+<div class="row">
+  <span>Truck 20563 · Oil Change</span>
+  <b>Scheduled</b>
+</div>
+
+<div class="row">
+  <span>Truck 21908 · Flat Tire</span>
+  <b>Open</b>
+</div>
+
+<div class="row">
+  <span>Truck 21427 · Engine Light On</span>
+  <b>Review</b>
+</div>
+
+<div class="row">
+  <span>Truck 21654 · Brake Inspection</span>
+  <b>Pending</b>
+</div>
+
       </div>
 
-      <div class="row">
-        <span>Truck 07 · Air Line Inspection</span>
-        <b>Review</b>
-      </div>
+      
     </div>
   `);
 }
