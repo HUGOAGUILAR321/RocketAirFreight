@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rocket Air Freight | Demo</title>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #0b1220;
+  color: white;
+}
+
+.app {
+  max-width: 460px;
+  min-height: 100vh;
+  margin: auto;
+  background: #111e31;
+  box-shadow: 0 0 35px #0008;
+}
+
+header {
+  padding: 22px;
+  background: transparent;
+  border-bottom: none;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+header span { color: #ff5959; }
+
+main { padding: 22px 20px 65px; }
+
+h1 { font-size: 27px; }
+h2 { font-size: 21px; }
+
+p {
+  color: #b7c6d9;
+  line-height: 1.5;
+}
+
+.truck {
+  text-align: center;
+  font-size: 95px;
+  margin: 35px 0;
+}
+
+.card {
+  background: #20324d;
+  border: 1px solid #3b506e;
+  border-radius: 14px;
+  padding: 17px;
+  margin: 12px 0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.grid .card { margin: 0; }
+
+.big {
+  font-size: 26px;
+  font-weight: bold;
+  margin-top: 8px;
+}
+
+small { color: #b7c6d9; }
+
+button {
+  width: 100%;
+  padding: 15px;
+  margin: 7px 0;
+  background: #dc4141;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: bold;
+  text-align: left;
+  cursor: pointer;
+}
+
+button.secondary { background: #304866; }
+
+button.back {
+  background: transparent;
+  padding-left: 0;
+  color: #b7c6d9;
+}
+
+input, textarea, select {
+  width: 100%;
+  padding: 13px;
+  margin: 7px 0 15px;
+  border-radius: 9px;
+  border: 1px solid #536b88;
+  background: #101b2c;
+  color: white;
+  font-size: 16px;
+}
+
+label {
+  color: #b7c6d9;
+  font-size: 13px;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 0;
+  border-bottom: 1px solid #40516b;
+}
+
+.hero {
+  background: linear-gradient(120deg, #b83338, #702433);
+  padding: 22px;
+  border-radius: 15px;
+  margin: 20px 0;
+}
+
+.badge {
+  display: inline-block;
+  background: #304866;
+  padding: 7px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+}
+
+.notice {
+  padding: 13px;
+  background: #403022;
+  color: #ffd7a7;
+  border-radius: 10px;
+  margin-top: 20px;
+  font-size: 13px;
+}
+
+footer {
+  padding: 20px;
+  text-align: center;
+  font-size: 11px;
+  color: #93a7c0;
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<header>
+
+</header>
+
+<main id="screen"></main>
+
+<footer>
+ROCKET AIR FREIGHT · DEMO VERSION
+</footer>
+
+</div>
+
+<script>
+
+let role = "driver";
+
+const drivers = [
+  {name:" Ubaldo", truck:"12", miles:2600, rate:0.62},
+  {name:"Yoyito", truck:"07", miles:3100, rate:0.65},
+  {name:"Shinola", truck:"20", miles:2450, rate:0.60},
+  {name:"Fernando", truck:"04", miles:2800, rate:0.63}
+];
+
+const trips = [
+  ["FA-10482",640],
+  ["FA-10491",715],
+  ["FA-10506",590],
+  ["FA-10521",655]
+];
+
+function money(value) {
+  return "$" + value.toLocaleString("en-US", {
+    minimumFractionDigits:2,
+    maximumFractionDigits:2
+  });
+}
+
+function show(html) {
+  document.getElementById("screen").innerHTML = html;
+  window.scrollTo(0,0);
+}
+
+function btn(text, action, secondary=false) {
+  return `<button class="${secondary?'secondary':''}"
+  onclick="${action}">${text} →</button>`;
+}
+
+function back(action) {
+  return `<button class="back" onclick="${action}">
+  ← Back</button>`;
+}
+
+function home() {
+  show(`
+    <img src="camion-rojo.png" alt="Rocket Air Freight" style="width:100%; height:auto; border-radius:12px; margin:20px 0;">
+
+
+
+    <p>Fleet Management & Driver Payroll System</p>
+
+    
+
+    ${btn("DRIVER LOGIN","login('driver')")}
+    ${btn("ADMIN LOGIN","login('admin')",true)}
+
+    <div class="notice">
+      Interactive demonstration.
+      No real company information is used.
+    </div>
+  `);
+}
+
+function login(type) {
+  role = type;
+
+  show(`
+    ${back("home()")}
+
+    <h1>${type==="driver"?"Driver":"Admin"} Login</h1>
+
+    <p>Enter any information to explore the demo.</p>
+
+    <label>Username</label>
+    <input placeholder="Username">
+
+    <label>PIN / Password</label>
+    <input type="password" placeholder="Password">
+
+    ${btn("LOGIN",
+      type==="driver"?"driverDashboard()":"adminDashboard()")}
+  `);
+}
+
+function driverDashboard() {
+  show(`
+    <span class="badge">DRIVER PORTAL</span>
+
+    <h1>Welcome, Ubaldo</h1>
+
+    <p>Truck #12 · Weekly Overview</p>
+
+    <div class="grid">
+      <div class="card">
+        <small>Weekly Miles</small>
+        <div class="big">2,600</div>
+      </div>
+
+      <div class="card">
+        <small>Estimated Pay</small>
+        <div class="big">$1,612</div>
+      </div>
+    </div>
+
+    <h2>My Workspace</h2>
+
+    ${btn("＋ Add Trip","addTrip()")}
+    ${btn("💵 My Pay","driverPay()",true)}
+    ${btn("📋 My Trips","myTrips()",true)}
+ ${false ? btn("🧾 Expense Authorization","expense()",true) : ""}
+    ${btn("🔧 Report Repair","repair()",true)}
+    ${btn("Log Out","home()",true)}
+  `);
+}
+
+function form(title, fields, returnAction) {
+  let html = back(returnAction);
+
+  html += `<h1>${title}</h1>`;
+  html += `<p>Demo form — information will not be saved.</p>`;
+  html += `<div class="card">`;
+
+  fields.forEach(field => {
+    html += `<label>${field[0]}</label>`;
+    html += `<input type="${field[2]||'text'}"
+             placeholder="${field[1]}">`;
+  });
+
+  html += btn("SUBMIT","confirmation()");
+  html += `</div>`;
+
+  show(html);
+}
+
+function confirmation() {
+  show(`
+    <h1>✓ Demo Submission</h1>
+
+    <p>Your information was submitted in demo mode.</p>
+
+    <div class="notice">
+      No information has been saved or transmitted.
+    </div>
+
+    ${btn("Back to Dashboard",
+      role==="driver"?"driverDashboard()":"adminDashboard()")}
+  `);
+}
+
+function addTrip() {
+  form("Add Trip",[
+    ["Trip Number","FA-10542"],
+    ["Trip Date","","date"],
+    ["Truck Number","12"],
+    ["Miles Driven","650","number"],
+    ["Extra Pay ($) - Optional","0","number"],
+    ["Authorization Photo - Optional","","file"]
+  ],"driverDashboard()");
+}
+
+function myTrips() {
+  let html = back("driverDashboard()");
+  html += "<h1>My Trips</h1>";
+  html += '<div class="card">';
+
+  trips.forEach(t => {
+    html += `<div class="row">
+      <strong>${t[0]}</strong>
+      <span>${t[1]} miles</span>
+    </div>`;
+  });
+
+  html += "</div>";
+  html += btn("Add Trip","addTrip()");
+
+  show(html);
+}
+
+function driverPay() {
+  show(`
+    ${back("driverDashboard()")}
+
+    <h1>My Weekly Pay</h1>
+
+    <p>Current Pay Period</p>
+
+    <div class="hero">
+      <small>ESTIMATED WEEKLY PAY</small>
+      <div class="big">$1,612.00</div>
+    </div>
+
+    <div class="card">
+      <div class="row"><span>Total Trips</span><b>4</b></div>
+      <div class="row"><span>Total Miles</span><b>2,600</b></div>
+      <div class="row"><span>Rate Per Mile</span><b>$0.62</b></div>
+      <div class="row"><span>Gross Pay</span><b>$1,612.00</b></div>
+    </div>
+
+    <p>Estimated payment subject to admin review.</p>
+  `);
+}
+
+function expense() {
+  form("Expense Authorization",[
+    ["Authorization Number","AUTH-2811"],
+    ["Amount","100.00","number"],
+    ["Reason","Repair / Fuel / Other"],
+    ["Photo Reference","receipt.jpg"]
+  ],"driverDashboard()");
+}
+
+function repair() {
+  form("Report Repair",[
+    ["Truck Number","12"],
+    ["Issue Description","Describe the problem"],
+    ["Priority","Normal / Urgent"]
+  ],"driverDashboard()");
+}
+
+function adminDashboard() {
+  show(`
+    <span class="badge">ADMIN PORTAL</span>
+
+    <h1>Fleet Overview</h1>
+
+    <p>Rocket Air Freight Management</p>
+
+    <div class="grid">
+      <div class="card">
+        <small>Total Trucks</small>
+        <div class="big">25</div>
+      </div>
+
+      <div class="card">
+        <small>Total Drivers</small>
+        <div class="big">32</div>
+      </div>
+
+      <div class="card">
+        <small>Weekly Miles</small>
+        <div class="big">68,420</div>
+      </div>
+
+      <div class="card">
+        <small>Est. Payroll</small>
+        <div class="big">$42.5K</div>
+      </div>
+    </div>
+
+    <h2>Management</h2>
+
+    ${btn("👥 Manage Drivers","manageDrivers()")}
+    ${btn("🚛 Manage Trucks","manageTrucks()",true)}
+    ${btn("💵 Weekly Payroll","payroll()",true)}
+    ${btn("📋 Trip Reports","tripReports()",true)}
+    ${btn("🧾 Expense Requests","expenseRequests()",true)}
+    ${btn("🔧 Repair Reports","repairReports()",true)}
+    ${btn("Log Out","home()",true)}
+  `);
+}
+
+function manageDrivers() {
+  let html = back("adminDashboard()");
+  html += "<h1>Manage Drivers</h1>";
+  html += '<div class="card">';
+
+  drivers.forEach(d => {
+    html += `<div class="row">
+      <div>
+        <strong>${d.name}</strong><br>
+        <small>Truck ${d.truck} · ${d.miles} miles</small>
+      </div>
+      <b>$${d.rate}/mi</b>
+    </div>`;
+  });
+
+  html += "</div>";
+  html += btn("＋ Add Driver","addDriver()");
+
+  show(html);
+}
+
+function addDriver() {
+  form("Add Driver",[
+    ["Full Name","Driver name"],
+    ["Assigned Truck","12"],
+    ["Pay Rate Per Mile","0.62","number"],
+    ["Driver PIN","1234"]
+  ],"manageDrivers()");
+}
+
+function manageTrucks() {
+  show(`
+    ${back("adminDashboard()")}
+
+    <h1>Manage Trucks</h1>
+
+    <div class="card">
+      <div class="row"><b>Truck 12</b><span>Active</span></div>
+      <div class="row"><b>Truck 07</b><span>Active</span></div>
+      <div class="row"><b>Truck 20</b><span>Maintenance</span></div>
+      <div class="row"><b>Truck 04</b><span>Active</span></div>
+    </div>
+
+    ${btn("＋ Add Truck","addTruck()")}
+  `);
+}
+
+function addTruck() {
+  form("Add Truck",[
+    ["Truck Number","26"],
+    ["Truck Model","Freightliner Cascadia"],
+    ["Assigned Driver","Driver name"]
+  ],"manageTrucks()");
+}
+
+function payroll() {
+  let html = back("adminDashboard()");
+
+  html += `
+    <h1>Weekly Payroll</h1>
+
+    <div class="hero">
+      <small>ESTIMATED FLEET PAYROLL</small>
+      <div class="big">$6,861.00</div>
+    </div>
+
+    <div class="card">
+  `;
+
+  drivers.forEach(d => {
+    let pay = d.miles*d.rate;
+
+    html += `<div class="row">
+      <div>
+        <strong>${d.name}</strong><br>
+        <small>${d.miles} miles × $${d.rate}</small>
+      </div>
+      <b>${money(pay)}</b>
+    </div>`;
+  });
+
+  html += "</div>";
+  html += "<p>Sample payroll information only.</p>";
+
+  show(html);
+}
+
+function tripReports() {
+  let html = back("adminDashboard()");
+  html += "<h1>Trip Reports</h1>";
+  html += '<div class="card">';
+
+  trips.forEach(t => {
+    html += `<div class="row">
+      <strong>${t[0]}</strong>
+      <span>${t[1]} miles</span>
+    </div>`;
+  });
+
+  html += "</div>";
+
+  show(html);
+}
+
+function expenseRequests() {
+  show(`
+    ${back("adminDashboard()")}
+
+    <h1>Expense Requests</h1>
+
+    <div class="card">
+      <div class="row">
+        <span>AUTH-2811 · Tire Service</span>
+        <b>$100.00</b>
+      </div>
+
+      <div class="row">
+        <span>AUTH-2807 · Parking</span>
+        <b>$45.00</b>
+      </div>
+    </div>
+  `);
+}
+
+function repairReports() {
+  show(`
+    ${back("adminDashboard()")}
+
+    <h1>Repair Reports</h1>
+
+    <div class="card">
+      <div class="row">
+        <span>Truck 20 · Check Engine Light</span>
+        <b>Open</b>
+      </div>
+
+      <div class="row">
+        <span>Truck 07 · Air Line Inspection</span>
+        <b>Review</b>
+      </div>
+    </div>
+  `);
+}
+
+home();
+
+</script>
+
+</body>
+</html>
