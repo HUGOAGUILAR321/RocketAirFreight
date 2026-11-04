@@ -321,9 +321,13 @@ fields.forEach(field => {
     html += `<input type="date" id="tripDate"
       onclick="this.showPicker && this.showPicker()"
       max="${new Date().toLocaleDateString('en-CA')}">`;
-  } else {
+  
+} else if (title === "Report Repair" && field[0] === "Issue Description") {
+    html += `<textarea rows="2" placeholder="${field[1]}"></textarea>`;
+} else {
     html += `<input type="${field[2]||'text'}"
       placeholder="${field[1]}">`;
+
   }
 });
 
@@ -396,6 +400,8 @@ function driverPay() {
 
     <p>Current Pay Period</p>
 
+<p>${currentPayPeriod()}</p>
+
     <div class="hero">
       <small>ESTIMATED WEEKLY PAY</small>
       <div class="big">$1,612.00</div>
@@ -423,9 +429,9 @@ function expense() {
 
 function repair() {
   form("Report Repair",[
-    ["Truck Number","12"],
+    ["Truck Number","21375"],
     ["Issue Description","Describe the problem"],
-    ["Priority","Normal / Urgent"]
+   
   ],"driverDashboard()");
 }
 
@@ -449,12 +455,12 @@ function adminDashboard() {
       </div>
 
       <div class="card">
-        <small>Weekly Miles</small>
+        <small>Current Week Miles</small>
         <div class="big">68,420</div>
       </div>
 
       <div class="card">
-        <small>Est. Payroll</small>
+       <small>Est. Current Week Payroll</small>
         <div class="big">$42.5K</div>
       </div>
     </div>
@@ -642,55 +648,89 @@ function expenseRequests() {
   `);
 }
 
+
+const repairRecords = [
+  {truck:"21796", issue:"Check Engine Light", status:"Open", repaired:false},
+  {truck:"20841", issue:"Air Line Inspection", status:"Review", repaired:false},
+  {truck:"21375", issue:"Engine Blown", status:"Urgent", repaired:false},
+  {truck:"20563", issue:"Oil Change", status:"Scheduled", repaired:false},
+  {truck:"21908", issue:"Flat Tire", status:"Open", repaired:false},
+  {truck:"21427", issue:"Engine Light On", status:"Review", repaired:false},
+  {truck:"21654", issue:"Brake Inspection", status:"Pending", repaired:false}
+];
+
+let repairView = "pending";
+
+function setRepairStatus(index, repaired) {
+  repairRecords[index].repaired = repaired;
+  repairRecords[index].repairedDate = repaired
+    ? new Date().toLocaleDateString("en-US")
+    : null;
+  repairReports();
+}
+
+function setRepairView(view) {
+  repairView = view;
+  repairReports();
+}
+
 function repairReports() {
+  const pending = repairRecords.filter(r => !r.repaired).length;
+  const completed = repairRecords.filter(r => r.repaired).length;
+
+  const rows = repairRecords
+    .map((r, index) => ({...r, index}))
+    .filter(r => repairView === "completed" ? r.repaired : !r.repaired)
+    .map(r => `
+      <div class="row" style="gap:10px; padding:12px 0;">
+        <div style="flex:1; min-width:0;">
+          <b>Truck ${r.truck}</b>
+          <div style="font-size:13px; margin-top:4px;">
+            ${r.issue}
+          </div>
+          ${r.repaired ? `
+  <div style="font-size:12px; opacity:.7; margin-top:4px;">
+    Repaired: ${r.repairedDate}
+  </div>
+` : ""}
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:12px; margin-bottom:6px;">
+            REPAIRED?
+          </div>
+          <button
+            style="width:auto; padding:8px 10px; margin:2px;"
+            onclick="setRepairStatus(${r.index},true)">
+            Yes
+          </button>
+          <button
+            style="width:auto; padding:8px 10px; margin:2px;"
+            onclick="setRepairStatus(${r.index},false)">
+            No
+          </button>
+        </div>
+      </div>
+    `).join("");
+
   show(`
     ${back("adminDashboard()")}
-
     <h1>Repair Reports</h1>
 
     <div class="card">
-      
-<div class="row">
-  <span>Truck 21796 · Check Engine Light</span>
-  <b>Open</b>
-</div>
-
-<div class="row">
-  <span>Truck 20841 · Air Line Inspection</span>
-  <b>Review</b>
-</div>
-
-<div class="row">
-  <span>Truck 21375 · Engine Blown</span>
-  <b>Urgent</b>
-</div>
-
-<div class="row">
-  <span>Truck 20563 · Oil Change</span>
-  <b>Scheduled</b>
-</div>
-
-<div class="row">
-  <span>Truck 21908 · Flat Tire</span>
-  <b>Open</b>
-</div>
-
-<div class="row">
-  <span>Truck 21427 · Engine Light On</span>
-  <b>Review</b>
-</div>
-
-<div class="row">
-  <span>Truck 21654 · Brake Inspection</span>
-  <b>Pending</b>
-</div>
-
+      <div style="display:flex; gap:8px; margin-bottom:15px;">
+        <button onclick="setRepairView('pending')">
+          Pending (${pending})
+        </button>
+        <button onclick="setRepairView('completed')">
+          Repaired (${completed})
+        </button>
       </div>
 
-      
+      ${rows || "<p>No reports in this section.</p>"}
     </div>
   `);
 }
+
 
 home();
 
